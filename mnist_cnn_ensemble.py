@@ -64,6 +64,7 @@ models = []
 num_models = 2
 for m in range(num_models):
     models.append(Model(sess, "model"+str(m)))
+# make list of models, 
 
 sess.run(tf.global_variables_initializer())
 
