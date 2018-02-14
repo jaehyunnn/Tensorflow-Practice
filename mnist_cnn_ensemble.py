@@ -36,7 +36,7 @@ class Model:
             pool3 = tf.layers.max_pooling2d(inputs=conv3, pool_size=[2,2], padding="SAME", strides=2)
             dropout3 = tf.layers.dropout(inputs=pool3, rate=0.7, training=self.training)
 
-            flat = tf.reshape(dropout3, [-1, 4*4*128])
+            flat = tf.layers.flatten(dropout3)
 
             dense4 = tf.layers.dense(inputs=flat, units=625, activation=tf.nn.relu)
             dropout4 =tf.layers.dropout(inputs=dense4, rate=0.5, training=self.training)
