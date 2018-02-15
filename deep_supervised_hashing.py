@@ -55,4 +55,13 @@ def pool(value, k_size=[1, 3, 3, 1], strides=[1, 2, 2, 1], name='pool1'):
 
 def lrn(value, depth_radius=1, alpha=5e-05, beta=0.75, name='lrn1'):
     with tf.variable_scope(name):
-        norm1 = tf.nn.lrn()
+        norm1 = tf.nn.lrn(value, depth_radius=depth_radius, bias=1.0, alpha=alpha, beta=beta)
+        return norm1
+
+
+def discriminator(image, hashing_bits, reuse=False, name='discriminator'):
+    with tf.name_scope(name):
+        if reuse:
+            tf.get_variable_scope().reuse_variables()
+        conv1 = conv2d(image, output_dim=32, name='d_conv1')
+        relu1 = relu(pool)
