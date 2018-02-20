@@ -22,7 +22,7 @@ def weight(name, shape, stddev=0.02, trainable=True):
 
     return var
 
-def fully_connected(value, ouput_shapen name='fully_connected', with_w=False):
+def fully_connected(value, ouput_shape name='fully_connected', with_w=False):
     value = tf.reshape(value, [BATCH_SIZE, -1])
     shape = value.get_shape().as_list()
 
@@ -64,4 +64,61 @@ def discriminator(image, hashing_bits, reuse=False, name='discriminator'):
         if reuse:
             tf.get_variable_scope().reuse_variables()
         conv1 = conv2d(image, output_dim=32, name='d_conv1')
-        relu1 = relu(pool)
+        relu1 = relu(pool(conv1, name='d_lrn1'), name='d_relu1')
+        conv2 = conv2d(lrn(relu2, name='d_lrn1'), output_dim=32, name='d_conv2')
+        relu2 = relu(pool_avg(conv2, name='d_pool2'), name='d_relu2')
+        conv3 = conv2d(lrn(relu2, name='d_lrn2'), output_dim=64, name='d_conv3')
+        pool3 = pool_avg(relu(conv3, name='d_relu3'), name='d_pool3')
+        relu_ip1 = relu(fully_connected(pool3, ouput_shape=500, name='d_ip1'), name='d_relu4')
+        ip2 = fully_connected(relu_ip1, output_shape=hashing_bits, name='d_ip2')
+
+        return ip2
+
+def read_cifar10_data():
+    data_dir = CURRENT_DIR + '/data/cifar-10-batches-py/'
+    train_name = 'data_batch_'
+    test_name = 'test_batch'
+    train_X = None
+    train_Y = None
+    test_X = None
+    test_Y = None
+
+    for i in range(1,6):
+        file_path = data_dir + train_name + str(i)
+        with open(file_path, 'rb') as fo:
+            dict = cPickle.load(fo)
+            if train_X is None:
+                train_X = dict['data']
+                train_Y = dict['labels']
+            else:
+                train_X = np.concatenate((train_X, dict['data']), axis=0)
+                train_Y = np.concatenate((train_Y, dict['labels']), axis=0)
+
+    file_path = data_dir + test_name
+    with open(file_path, 'rb') as fo:
+        dict = cPickle.load(fo)
+        test_X = dict['data']
+        test_Y = dict['labels']
+    train_X = train_X.reshape((50000, 3, 32, 32)).transpose(0, 2, 3, 1).astype(np.float))
+    test_X = test_X.reshape((10000, 3, 32, 32)).transpose(0, 2, 3, 1).astype(np.float)
+
+    train_y_vec = np.zeros((len(train_Y), 10), dtype=np.float)
+    test_y_vec = np.zeros((len(test_Y), 10), dtype=np.float)
+    for i, label in enumerate(train_Y):
+        train_y_vec[i, int(train_Y[i])] = 1.
+    for i, label in enumerate(test_Y):
+        test_y_vec[i, int(test_Y[i])] = 1.
+
+    return train_X/255., train_y_vec, test_X/255., test_y_vec
+
+def hashing_loss(image, label, alpha, m):
+    D = discriminator(image, HASHING_BITS)
+    w_label = tf.matmul(label, label, False, True)
+
+    r = tf.reshape(tf.reduce_sum(D*D, 1), [-1, 1])
+    p2_distance = r - 2*tf.matmul(D, D, False, True) + tf.transpose(r)
+    temp = w_label*p2_distance + (1-w_label)*tf.maximum(m-p2_distance, 0)
+
+    regularizer = tf.reduce_sum(tf.abs(tf.abs(D) - 1))
+    d_loss = tf.reduce_sum(temp)/(BATCH_SIZE*(BATCH_SIZE-1)) + alpha*regularizer/BATCH_SIZE
+    return d_loss
