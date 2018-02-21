@@ -122,3 +122,22 @@ def hashing_loss(image, label, alpha, m):
     regularizer = tf.reduce_sum(tf.abs(tf.abs(D) - 1))
     d_loss = tf.reduce_sum(temp)/(BATCH_SIZE*(BATCH_SIZE-1)) + alpha*regularizer/BATCH_SIZE
     return d_loss
+
+def train():
+    train_dir = CURRENT_DIR + '/logs/'
+    global_step = tf.Variable(0, name='global_step', trainable=False)
+    image = tf.placeholder(tf.float32, [BATCH_SIZE, 32, 32, 3], name='image')
+    label = tf.placeholder(tf.float32, [BATCH_SIZE, 10], name='label')
+
+    alpha = tf.constant(0.01, dtype=tf.float32, name='tradeoff')
+    m = tf.constant(HASHING_BITS*2, dtype=tf.float32, name='bi_margin')
+    d_loss_real = hashing_loss(image, label, alpha, m)
+
+    t_vars = tf.trainable_variables()
+    d_vars = [var for var in t_vars if 'd_' in var.name]
+
+    saver = tf.train.Saver()
+
+    d_optim = tf.train.AdamOptimizer(LR, beta1=0.5).minimize(d_loss_real, var_list=d_vars, global_step=global_step)
+
+    os.environ
