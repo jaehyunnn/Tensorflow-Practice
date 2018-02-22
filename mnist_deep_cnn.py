@@ -49,15 +49,20 @@ W5 = tf.get_variable("W5", shape=[625, 10], initializer=tf.contrib.layers.xavier
 b5 = tf.Variable(tf.random_normal([10]))
 logits = tf.matmul(L4, W5) + b5
 
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=Y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
+saver = tf.train.Saver() #ckpt saver
+
 # Learning rountine
 print('Learning Started!')
 for epoch in range(training_epochs):
+    ckpt_path = saver.save(sess, "ckpt/deep_cnn")
+    print("save ckpt file: ", ckpt_path)
+
     avg_cost = 0
     total_batch = int(mnist.train.num_examples/batch_size)
 
@@ -78,3 +83,4 @@ print("Accuracy: ", sess.run(accuracy, feed_dict={X:mnist.test.images, Y:mnist.t
 r = random.randint(0, mnist.test.num_examples -1)
 print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r+1],1)))
 print("Prediction: ", sess.run(tf.argmax(logits, 1), feed_dict={X:mnist.test.images[r:r+1], keep_prob:1}))
+sess.close()
