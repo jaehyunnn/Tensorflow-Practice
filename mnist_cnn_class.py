@@ -52,7 +52,7 @@ class Model:
             b5 = tf.Variable(tf.random_normal([10]))
             self.logits = tf.matmul(L4, W5) + b5
 
-        self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=self.Y))
+        self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.Y))
         self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.cost)
 
         correct_prediction = tf.equal(tf.argmax(self.logits, 1), tf.argmax(self.Y, 1))

@@ -1,14 +1,12 @@
 import tensorflow as tf
-import numpy as np
 
 from tensorflow.examples.tutorials.mnist import input_data
-from calculate_mAP import
 
 tf.set_random_seed(777)
 
-mnist = input_data.read_data_sets("MNIST_data/",one_hot = True)
+mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
-learning_rate = 0.001
+learning_rate = 0.01
 training_epochs = 15
 batch_size = 100
 
@@ -37,63 +35,47 @@ class Model:
             pool3 = tf.layers.max_pooling2d(inputs=conv3, pool_size=[2,2], padding="SAME", strides=2)
             dropout3 = tf.layers.dropout(inputs=pool3, rate=0.7, training=self.training)
 
-            flat = tf.layers.flatten(dropout3)
-
-            dense4 = tf.layers.dense(inputs=flat, units=625, activation=tf.nn.relu)
-            dropout4 =tf.layers.dropout(inputs=dense4, rate=0.5, training=self.training)
+            flat = tf.reshape(dropout3, [-1, 128*4*4])
+            dense4 = tf.layers.dense(flat, units=625, activation=None)
+            dense4 = tf.layers.batch_normalization(dense4, center=True, scale=True, training=self.training)
+            # fc-layer만 batch norm 적용 해봄
+            dense4 = tf.nn.relu(dense4)
+            dropout4 = tf.layers.dropout(dense4, rate=0.5, training=self.training)
 
             self.logits = tf.layers.dense(inputs=dropout4, units=10)
 
-        self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=self.Y))
+        self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.Y))
         self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.cost)
 
-        correct_prediction = tf.equal(tf.argmax(self.logits,1), tf.argmax(self.Y,1))
+        correct_prediction = tf.equal(tf.argmax(self.logits, 1), tf.argmax(self.Y, 1))
         self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     def predict(self, x_test, training=False):
-        return self.sess.run(self.logits, feed_dict={self.X: x_test, self.training:training})
+        return self.sess.run(self.logits, feed_dict={self.X: x_test, self.training: training})
 
     def get_accuracy(self, x_test, y_test, training=False):
         return self.sess.run(self.accuracy, feed_dict={self.X: x_test, self.Y: y_test, self.training: training})
 
     def train(self, x_data, y_data, training=True):
-        return self.sess.run([self.cost, self.optimizer], feed_dict={self.X: x_data, self.Y: y_data, self.training: training})
+        return self.sess.run([self.cost, self.optimizer],
+                             feed_dict={self.X: x_data, self.Y: y_data, self.training: training})
 
 sess = tf.Session()
-
-models = []
-num_models = 2
-for m in range(num_models):
-    models.append(Model(sess, "model"+str(m)))
-# make list of models, 
+m1 = Model(sess, "m1")
 
 sess.run(tf.global_variables_initializer())
 
-saver = tf.train.Saver() #ckpt saver
-
 print("Learning Started!")
 for epoch in range(training_epochs):
-    ckpt_path = saver.save(sess, "ckpt/deep_cnn")
-    print("save ckpt file: ", ckpt_path)
+    avg_cost = 0
+    total_batch = int(mnist.train.num_examples / batch_size)
 
-    avg_cost_list = np.zeros(len(models))
-    total_batch = int(mnist.train.num_examples/batch_size)
     for i in range(total_batch):
         batch_xs, batch_ys = mnist.train.next_batch(batch_size)
+        c, _ = m1.train(batch_xs, batch_ys)
+        avg_cost += c/total_batch
 
-        for m_idx, m in enumerate(models):
-            c, _ = m.train(batch_xs, batch_ys)
-            avg_cost_list[m_idx] += c/total_batch
-    print("Epoch:", '%04d'%(epoch+1), 'cost=', avg_cost_list)
+    print('Epoch:', '%04d' % (epoch+1), 'cost=', '{:.9f}'.format(avg_cost))
 print("Learning Finished!")
 
-test_size = len(mnist.test.labels)
-predictions = np.zeros([test_size, 10])
-for m_idx, m in enumerate(models):
-    print(m_idx+1, 'Accuracy:', m.get_accuracy(mnist.test.images, mnist.test.labels))
-    p = m.predict(mnist.test.images)
-    predictions += p
-
-ensemble_correct_prediction = tf.equal(tf.argmax(predictions, 1), tf.argmax(mnist.test.labels, 1))
-ensemble_accuracy = tf.reduce_mean(tf.cast(ensemble_correct_prediction, tf.float32))
-print('Ensemble accuracy:', sess.run(ensemble_accuracy))
+print('Accuracy:',m1.get_accuracy(mnist.test.images, mnist.test.labels))
