@@ -49,12 +49,12 @@ for epoch in range(training_epochs):
         c,_ = sess.run([cost, optimizer], feed_dict=feed_dict)
         avg_cost += c / total_batch
     print('Epoch: %04d' % (epoch + 1), 'cost =', '{:.9f}'.format(avg_cost))
+    correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(Y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    print('Accuracy: ', sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
 
 print('Learing Finished!')
 
-correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(Y, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-print('Accuracy: ',sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
 
 r = random.randint(0, mnist.test.num_examples -1)
 print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r+1], 1)))
