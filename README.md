@@ -7,5 +7,5 @@
 
 ## References
 
-[1] https://hunkim.github.io/ml/
+[1] https://hunkim.github.io/ml/ <br>
 [2] https://github.com/hunkim/DeepLearningZeroToAll
