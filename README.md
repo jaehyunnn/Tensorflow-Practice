@@ -10,11 +10,12 @@
 ```
 1. [mnist_cnn.py]                 #Basic CNN for MNIST classification
 2. [mnist_deep_cnn.py]            #Deeper CNN
-3. [mnist_deep_cnn_class.py]      #Refactoring version of '2'
-4. [mnist_cnn_layers.py]          #Using 'tf.layers' API
-5. [mnist_cnn_layer_batchnorm.py] #With 'Batch Normalization'
-6. [mnist_cnn_layer_ensemble.py]  #With 'Ensemble' approach
-7. [mnist_cnn_layers_fcn.py]      #Fully convolutional approach (without f-c layer)
+3. [mnist_deep_cnn_using_ckpt.py] #Using trained model
+4. [mnist_deep_cnn_class.py]      #Refactoring version of '2'
+5. [mnist_cnn_layers.py]          #Using 'tf.layers' API
+6. [mnist_cnn_layer_batchnorm.py] #With 'Batch Normalization'
+7. [mnist_cnn_layer_ensemble.py]  #With 'Ensemble' approach
+8. [mnist_cnn_layers_fcn.py]      #Fully convolutional approach (without f-c layer)
 ```
 ## References
 
