@@ -10,7 +10,7 @@
 ```
 1. [mnist_cnn.py]                 #Basic CNN for MNIST classification
 2. [mnist_deep_cnn.py]            #Deeper CNN
-3. [mnist_deep_cnn_class.py]      #Refactoring of '2'
+3. [mnist_deep_cnn_class.py]      #Refactoring version of '2'
 4. [mnist_cnn_layers.py]          #Using 'tf.layers' API
 5. [mnist_cnn_layer_batchnorm.py] #With 'Batch Normalization'
 6. [mnist_cnn_layer_ensemble.py]  #With 'Ensemble' approach
