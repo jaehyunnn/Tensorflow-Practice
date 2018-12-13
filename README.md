@@ -11,7 +11,7 @@
 * [mnist_cnn.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_cnn.py)                 #Basic CNN for MNIST classification
 * [mnist_deep_cnn.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_deep_cnn.py)            #Deeper CNN
 * [mnist_deep_cnn_using_ckpt.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_cnn_using_ckpt.py) #Using trained model
-* [mnist_deep_cnn_class.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_deep_cnn_class.py)      #Refactoring version of '2'
+* [mnist_deep_cnn_class.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_deep_cnn_class.py)      #Refactoring version of 'mnist_deep_cnn.py'
 * [mnist_cnn_layers.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_cnn_layers.py)          #Using 'tf.layers' API
 * [mnist_cnn_layer_batchnorm.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_cnn_layers_batchnorm.py) #With 'Batch Normalization'
 * [mnist_cnn_layer_ensemble.py](https://github.com/jaehyunnn/Tensorflow-Practice/blob/master/mnist_cnn_layers_ensemble.py)  #With 'Ensemble' approach
